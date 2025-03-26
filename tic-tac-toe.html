@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>Tic-Tac-Toe</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        #board {
+            display: grid;
+            grid-template-columns: repeat(3, 100px);
+            grid-gap: 4px;
+            border: 2px solid #333;
+            background-color: #222;
+        }
+
+        .cell {
+            width: 100px;
+            height: 100px;
+            background-color: #444;
+            border: none;
+            cursor: pointer;
+            font-size: 48px;
+            color: white;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .cell:hover {
+            background-color: #555;
+        }
+
+        #message {
+            margin-top: 20px;
+            font-size: 24px;
+            color: white;
+            text-align: center;
+        }
+
+        button {
+            margin-top: 20px;
+            padding: 10px 20px;
+            font-size: 18px;
+            background-color: #007bff;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+
+        button:hover {
+            background-color: #0056b3;
+        }
+    </style>
+</head>
+
+<body class="bg-gray-900">
+    <div class="container mx-auto p-4">
+        <h1 class="text-3xl font-bold text-white text-center mb-4">Tic-Tac-Toe</h1>
+        <div id="board"></div>
+        <div id="message"></div>
+        <button onclick="resetBoard()"
+            class="mt-4 bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">
+            Reset
+        </button>
+    </div>
+
+    <script>
+        // ... (JavaScript code from the Tic-Tac-Toe example in the previous response)
+        let board = ["", "", "", "", "", "", "", "", ""];
+let currentPlayer = "X";
+let gameOver = false;
+const boardDiv = document.getElementById("board");
+const messageDiv = document.getElementById("message");
+
+function createBoard() {
+    for (let i = 0; i < 9; i++) {
+        const cell = document.createElement("div");
+        cell.classList.add("cell");
+        cell.dataset.index = i;
+        cell.addEventListener("click", handleCellClick);
+        boardDiv.appendChild(cell);
+    }
+}
+
+function handleCellClick(event) {
+    if (gameOver) return;
+
+    const cell = event.target;
+    const index = cell.dataset.index;
+
+    if (board[index] === "") {
+        board[index] = currentPlayer;
+        cell.textContent = currentPlayer;
+        checkWin();
+        switchPlayer();
+    }
+}
+
+function checkWin() {
+    const winPatterns = [
+        [0, 1, 2], [3, 4, 5], [6, 7, 8], // Rows
+        [0, 3, 6], [1, 4, 7], [2, 5, 8], // Columns
+        [0, 4, 8], [2, 4, 6]             // Diagonals
+    ];
+
+    for (const pattern of winPatterns) {
+        const [a, b, c] = pattern;
+        if (board[a] && board[a] === board[b] && board[a] === board[c]) {
+            messageDiv.textContent = `${currentPlayer} wins!`;
+            gameOver = true;
+            highlightWinner(pattern); // Highlight the winning cells
+            return;
+        }
+    }
+
+    if (board.every(cell => cell !== "")) {
+        messageDiv.textContent = "It's a draw!";
+        gameOver = true;
+    }
+}
+
+function highlightWinner(pattern) {
+    const cells = boardDiv.querySelectorAll(".cell");
+    for (const index of pattern) {
+        cells[index].classList.add("winner"); // Add a 'winner' class
+    }
+}
+
+
+function switchPlayer() {
+    currentPlayer = currentPlayer === "X" ? "O" : "X";
+    messageDiv.textContent = `It's ${currentPlayer}'s turn`;
+}
+
+function resetBoard() {
+    board = ["", "", "", "", "", "", "", "", ""];
+    currentPlayer = "X";
+    gameOver = false;
+    messageDiv.textContent = "";
+    boardDiv.innerHTML = "";
+    createBoard();
+}
+
+createBoard();
+messageDiv.textContent = `It's ${currentPlayer}'s turn`;
+    </script>
+</body>
+
+</html>

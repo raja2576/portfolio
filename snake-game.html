@@ -1,0 +1,411 @@
+<!-- <!DOCTYPE html>
+<html>
+
+<head>
+    <title>Snake Game</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        #game-board {
+            width: 400px; /* Adjust as needed */
+            height: 400px; /* Adjust as needed */
+            background-color: #222;
+            border: 2px solid #333;
+            display: grid;
+            grid-template-columns: repeat(20, 1fr); /* Adjust grid size */
+            grid-template-rows: repeat(20, 1fr); /* Adjust grid size */
+        }
+
+        .game-cell {
+            background-color: #333;
+        }
+
+        .snake {
+            background-color: green;
+        }
+
+        .food {
+            background-color: red;
+            border-radius: 50%; /* Make food round */
+        }
+
+        #score {
+            margin-top: 20px;
+            font-size: 20px;
+            color: white;
+            text-align: center;
+        }
+    </style>
+</head>
+
+<body class="bg-gray-900">
+    <div class="container mx-auto p-4">
+        <h1 class="text-3xl font-bold text-white text-center mb-4">Snake Game</h1>
+        <div id="game-board"></div>
+        <div id="score">Score: 0</div>
+        <button onclick="startGame()"
+            class="mt-4 bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">
+            Start Game
+        </button>
+
+    </div>
+    <script>
+        const gameBoard = document.getElementById('game-board');
+        const scoreDisplay = document.getElementById('score');
+        const gridSize = 20; // Adjust to change grid size
+        let snake = [{ x: 10, y: 10 }];
+        let food = { x: 15, y: 12 };
+        let dx = 1; // Initial velocity x
+        let dy = 0; // Initial velocity y
+        let score = 0;
+        let gameInterval;
+
+
+        function createBoard() {
+            for (let i = 0; i < gridSize * gridSize; i++) {
+                const cell = document.createElement('div');
+                cell.classList.add('game-cell');
+                gameBoard.appendChild(cell);
+            }
+        }
+
+        function drawSnake() {
+            const cells = gameBoard.querySelectorAll('.game-cell');
+            cells.forEach(cell => cell.classList.remove('snake'));
+            snake.forEach(segment => {
+                const index = segment.y * gridSize + segment.x;
+                if (index >= 0 && index < cells.length) { // Check index bounds
+                  cells[index].classList.add('snake');
+                }
+            });
+        }
+
+        function drawFood() {
+            const cells = gameBoard.querySelectorAll('.game-cell');
+            const index = food.y * gridSize + food.x;
+            if (index >= 0 && index < cells.length) { // Check index bounds
+                cells[index].classList.add('food');
+            }
+        }
+
+        function moveSnake() {
+            const head = { ...snake[0] }; // Create a copy of the head
+            head.x += dx;
+            head.y += dy;
+
+            // Wrap around the board edges
+            if (head.x >= gridSize) head.x = 0;
+            if (head.x < 0) head.x = gridSize - 1;
+            if (head.y >= gridSize) head.y = 0;
+            if (head.y < 0) head.y = gridSize - 1;
+
+            snake.unshift(head);
+
+            if (head.x === food.x && head.y === food.y) {
+                score++;
+                scoreDisplay.textContent = `Score: ${score}`;
+                generateFood();
+            } else {
+                snake.pop(); // Remove the tail
+            }
+        }
+
+        function checkCollision() {
+            const head = snake[0];
+            for (let i = 1; i < snake.length; i++) {
+                if (snake[i].x === head.x && snake[i].y === head.y) {
+                    clearInterval(gameInterval);
+                    alert("Game Over!");
+                    return true; // Indicate collision
+                }
+            }
+            return false; // No collision
+        }
+
+        function generateFood() {
+            food = {
+                x: Math.floor(Math.random() * gridSize),
+                y: Math.floor(Math.random() * gridSize)
+            };
+            const cells = gameBoard.querySelectorAll('.game-cell');
+            const index = food.y * gridSize + food.x;
+            cells.forEach(cell => cell.classList.remove('food'));
+            if (index >= 0 && index < cells.length) { // Check index bounds
+                cells[index].classList.add('food');
+            }
+        }
+
+        function startGame() {
+            clearInterval(gameInterval);
+            snake = [{ x: 10, y: 10 }];
+            score = 0;
+            scoreDisplay.textContent = `Score: ${score}`;
+            dx = 1;
+            dy = 0;
+            generateFood();
+            gameInterval = setInterval(gameLoop, 150); // Adjust speed
+        }
+
+        function gameLoop() {
+            moveSnake();
+            if (checkCollision()) {
+                return;
+            }
+            drawSnake();
+            drawFood();
+        }
+
+        document.addEventListener('keydown', (event) => {
+            switch (event.key) {
+                case 'ArrowUp':
+                    if (dy !== 1) { // Prevent going directly down
+                        dx = 0;
+                        dy = -1;
+                    }
+                    break;
+                case 'ArrowDown':
+                    if (dy !== -1) { // Prevent going directly up
+                        dx = 0;
+                        dy = 1;
+                    }
+                    break;
+                case 'ArrowLeft':
+                    if (dx !== 1) { // Prevent going directly right
+                        dx = -1;
+                        dy = 0;
+                    }
+                    break;
+                case 'ArrowRight':
+                    if (dx !== -1) { // Prevent going directly left
+                        dx = 1;
+                        dy = 0;
+                    }
+                    break;
+            }
+        });
+
+        createBoard();
+        generateFood(); // Generate initial food
+    </script>
+
+</body>
+
+</html> -->
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>Snake Game</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        #game-board {
+            width: 400px;
+            height: 400px;
+            background-color: #222;
+            border: 2px solid #333;
+            display: grid;
+            grid-template-columns: repeat(20, 1fr);
+            grid-template-rows: repeat(20, 1fr);
+        }
+
+        .game-cell {
+            background-color: #333;
+        }
+
+        .snake {
+            background-color: green;
+        }
+
+        .food {
+            background-color: red;
+            border-radius: 50%;
+        }
+
+        #score {
+            margin-top: 20px;
+            font-size: 20px;
+            color: white;
+            text-align: center;
+        }
+
+        body {
+            min-height: 100vh; /* Ensure body takes up full viewport height */
+            display: flex;
+            flex-direction: column; /* Arrange content vertically */
+        }
+
+        main {
+            flex: 1; /* Allow main content to take up available space */
+        }
+
+        footer {
+            /* Footer styling */
+            background-color: #333;
+            padding: 20px;
+            color: white;
+            text-align: center;
+            margin-top: auto; /* Push footer to bottom */
+        }
+    </style>
+</head>
+
+<body class="bg-gray-900">
+    <main class="container mx-auto p-4">
+        <h1 class="text-3xl font-bold text-white text-center mb-4">Snake Game</h1>
+        <div id="game-board"></div>
+        <div id="score">Score: 0</div>
+        <button onclick="startGame()"
+            class="mt-4 bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">
+            Start Game
+        </button>
+    </main>
+    <footer class="bg-gray-800 py-8">
+        <div class="container mx-auto">
+            <p class="text-gray-400 text-center">&copy; 2023 Aman Kumar. All rights reserved.</p>
+        </div>
+    </footer>
+
+    <script>
+        // ... (Snake game JavaScript code from previous response)
+        
+        const gameBoard = document.getElementById('game-board');
+        const scoreDisplay = document.getElementById('score');
+        const gridSize = 20; // Adjust to change grid size
+        let snake = [{ x: 10, y: 10 }];
+        let food = { x: 15, y: 12 };
+        let dx = 1; // Initial velocity x
+        let dy = 0; // Initial velocity y
+        let score = 0;
+        let gameInterval;
+
+
+        function createBoard() {
+            for (let i = 0; i < gridSize * gridSize; i++) {
+                const cell = document.createElement('div');
+                cell.classList.add('game-cell');
+                gameBoard.appendChild(cell);
+            }
+        }
+
+        function drawSnake() {
+            const cells = gameBoard.querySelectorAll('.game-cell');
+            cells.forEach(cell => cell.classList.remove('snake'));
+            snake.forEach(segment => {
+                const index = segment.y * gridSize + segment.x;
+                if (index >= 0 && index < cells.length) { // Check index bounds
+                  cells[index].classList.add('snake');
+                }
+            });
+        }
+
+        function drawFood() {
+            const cells = gameBoard.querySelectorAll('.game-cell');
+            const index = food.y * gridSize + food.x;
+            if (index >= 0 && index < cells.length) { // Check index bounds
+                cells[index].classList.add('food');
+            }
+        }
+
+        function moveSnake() {
+            const head = { ...snake[0] }; // Create a copy of the head
+            head.x += dx;
+            head.y += dy;
+
+            // Wrap around the board edges
+            if (head.x >= gridSize) head.x = 0;
+            if (head.x < 0) head.x = gridSize - 1;
+            if (head.y >= gridSize) head.y = 0;
+            if (head.y < 0) head.y = gridSize - 1;
+
+            snake.unshift(head);
+
+            if (head.x === food.x && head.y === food.y) {
+                score++;
+                scoreDisplay.textContent = `Score: ${score}`;
+                generateFood();
+            } else {
+                snake.pop(); // Remove the tail
+            }
+        }
+
+        function checkCollision() {
+            const head = snake[0];
+            for (let i = 1; i < snake.length; i++) {
+                if (snake[i].x === head.x && snake[i].y === head.y) {
+                    clearInterval(gameInterval);
+                    alert("Game Over!");
+                    return true; // Indicate collision
+                }
+            }
+            return false; // No collision
+        }
+
+        function generateFood() {
+            food = {
+                x: Math.floor(Math.random() * gridSize),
+                y: Math.floor(Math.random() * gridSize)
+            };
+            const cells = gameBoard.querySelectorAll('.game-cell');
+            const index = food.y * gridSize + food.x;
+            cells.forEach(cell => cell.classList.remove('food'));
+            if (index >= 0 && index < cells.length) { // Check index bounds
+                cells[index].classList.add('food');
+            }
+        }
+
+        function startGame() {
+            clearInterval(gameInterval);
+            snake = [{ x: 10, y: 10 }];
+            score = 0;
+            scoreDisplay.textContent = `Score: ${score}`;
+            dx = 1;
+            dy = 0;
+            generateFood();
+            gameInterval = setInterval(gameLoop, 150); // Adjust speed
+        }
+
+        function gameLoop() {
+            moveSnake();
+            if (checkCollision()) {
+                return;
+            }
+            drawSnake();
+            drawFood();
+        }
+
+        document.addEventListener('keydown', (event) => {
+            switch (event.key) {
+                case 'ArrowUp':
+                    if (dy !== 1) { // Prevent going directly down
+                        dx = 0;
+                        dy = -1;
+                    }
+                    break;
+                case 'ArrowDown':
+                    if (dy !== -1) { // Prevent going directly up
+                        dx = 0;
+                        dy = 1;
+                    }
+                    break;
+                case 'ArrowLeft':
+                    if (dx !== 1) { // Prevent going directly right
+                        dx = -1;
+                        dy = 0;
+                    }
+                    break;
+                case 'ArrowRight':
+                    if (dx !== -1) { // Prevent going directly left
+                        dx = 1;
+                        dy = 0;
+                    }
+                    break;
+            }
+        });
+
+        createBoard();
+        generateFood(); // Generate initial food
+    </script>
+    
+
+</body>
+
+</html>

@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>Memory Game</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        #game-board {
+            display: grid;
+            grid-template-columns: repeat(4, 100px); /* 4x4 grid */
+            grid-gap: 10px;
+            perspective: 800px; /* For 3D effect */
+        }
+
+        .card {
+            width: 100px;
+            height: 150px;
+            background-color: #333;
+            border-radius: 10px;
+            cursor: pointer;
+            position: relative; /* For absolute positioning of front/back */
+            transform-style: preserve-3d; /* Preserve 3D transforms */
+            transition: transform 0.5s; /* Smooth flip animation */
+        }
+
+        .card.flipped {
+            transform: rotateY(180deg);
+        }
+
+        .card-face {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            backface-visibility: hidden; /* Hide back face during flip */
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 48px;
+            border-radius: 10px;
+        }
+
+        .card-front {
+            background-color: #444; /* Back of card */
+            color: white;
+        }
+
+        .card-back {
+            background-color: #666; /* Front of card */
+            transform: rotateY(180deg); /* Initially hidden */
+        }
+
+        #message {
+            margin-top: 20px;
+            font-size: 24px;
+            color: white;
+            text-align: center;
+        }
+    </style>
+</head>
+
+<body class="bg-gray-900">
+    <div class="container mx-auto p-4">
+        <h1 class="text-3xl font-bold text-white text-center mb-4">Memory Game</h1>
+        <div id="game-board"></div>
+        <div id="message"></div>
+    </div>
+
+    <script>
+        const gameBoard = document.getElementById('game-board');
+        const messageDiv = document.getElementById('message');
+        let cards = [];
+        let flippedCards = [];
+        let lockBoard = false; // Prevent clicking during matching
+
+        const cardValues = ['A', 'A', 'B', 'B', 'C', 'C', 'D', 'D', 'E', 'E', 'F', 'F'];
+
+        function createBoard() {
+            // Shuffle card values (using Fisher-Yates shuffle)
+            for (let i = cardValues.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [cardValues[i], cardValues[j]] = [cardValues[j], cardValues[i]];
+            }
+
+            for (let i = 0; i < cardValues.length; i++) {
+                const card = document.createElement('div');
+                card.classList.add('card');
+                card.dataset.value = cardValues[i];
+
+                const cardFront = document.createElement('div');
+                cardFront.classList.add('card-face', 'card-front');
+
+                const cardBack = document.createElement('div');
+                cardBack.classList.add('card-face', 'card-back');
+                cardBack.textContent = cardValues[i]; // Value on the back
+
+                card.appendChild(cardFront);
+                card.appendChild(cardBack);
+                card.addEventListener('click', flipCard);
+                gameBoard.appendChild(card);
+                cards.push(card);
+            }
+        }
+
+
+        function flipCard() {
+            if (lockBoard) return; // Prevent flipping if matching is in progress
+            if (this === flippedCards[0]) return; // Prevent flipping the same card twice
+
+            this.classList.add('flipped');
+            flippedCards.push(this);
+
+            if (flippedCards.length === 2) {
+                checkForMatch();
+            }
+        }
+
+        function checkForMatch() {
+            const card1 = flippedCards[0];
+            const card2 = flippedCards[1];
+
+            if (card1.dataset.value === card2.dataset.value) {
+                // Match!
+                disableCards();
+                flippedCards = [];
+                if (cards.every(card => card.classList.contains('flipped'))) {
+                    messageDiv.textContent = "You won!";
+                }
+            } else {
+                // No match
+                lockBoard = true; // Prevent further clicks briefly
+                setTimeout(unflipCards, 1000);
+            }
+        }
+
+        function disableCards() {
+            flippedCards[0].removeEventListener('click', flipCard);
+            flippedCards[1].removeEventListener('click', flipCard);
+        }
+
+        function unflipCards() {
+            flippedCards[0].classList.remove('flipped');
+            flippedCards[1].classList.remove('flipped');
+            flippedCards = [];
+            lockBoard = false; // Re-enable clicks
+        }
+
+        createBoard(); // Initialize the board
+        messageDiv.textContent = "Match the cards!"; // Set initial message
+    </script>
+
+</body>
+
+</html>
